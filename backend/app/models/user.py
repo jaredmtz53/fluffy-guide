@@ -19,6 +19,8 @@ class User(Base):
         unique=True,
         nullable=False,
     )
+    is_admin: Mapped[bool] = mapped_column(default=False, nullable=False)
+    is_banned: Mapped[bool] = mapped_column(default=False, nullable=False)
     school_email: Mapped[str] = mapped_column(unique=True, nullable=False)
     phone_number: Mapped[str] = mapped_column(String(20),unique=True, nullable=False)
     is_email_verified: Mapped[bool] = mapped_column(
@@ -43,6 +45,7 @@ class User(Base):
         default=datetime.datetime.now,
         onupdate=datetime.datetime.now
     )
+
 
 
 

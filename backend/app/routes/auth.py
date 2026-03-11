@@ -51,6 +51,12 @@ def login (
     if not user or not verify_password(form_data.password, str(user.password_hash)):
         raise HTTPException(status_code=400, detail="Invalid credentials")
 
+    if not user.is_email_verified:
+        raise HTTPException(
+            status_code=403,
+            detail="Please verify your email before logging in."
+        )
+
     token = create_access_token({
         "sub": str(user.id),
         "type": "access",
@@ -90,3 +96,24 @@ def verify_email(token: str, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Email verified successfully"}
+
+@auth_router.post("/resend-verification")
+def resend_verification(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if current_user.is_email_verified:
+        raise HTTPException(
+            status_code=400,
+            detail="Email already verified"
+        )
+
+    token = create_email_verification_token(str(current_user.id))
+
+    send_verification_email(
+        to_email=current_user.school_email,
+        username=current_user.username,
+        token=token,
+    )
+
+    return {"message": "Verification email sent"}

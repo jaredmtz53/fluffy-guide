@@ -2,7 +2,7 @@ import datetime
 import uuid
 
 from sqlalchemy import String, ForeignKey
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from backend.app.db.base import Base
 
@@ -34,7 +34,17 @@ class Listing(Base):
     condition: Mapped[str] = mapped_column(
         nullable=False,
     )
+    category_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("category.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+
     status: Mapped[str] = mapped_column(default="active", nullable=False)
 
-    location: Mapped[str]
+    location: Mapped[str] = mapped_column(nullable=False)
 
+
+    category: Mapped["Category"] = relationship(
+        "Category",
+        back_populates="listings"
+    )
